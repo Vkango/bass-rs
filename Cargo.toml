@@ -1,0 +1,19 @@
+[package]
+name = "bass-rs"
+version = "0.1.0"
+edition = "2024"
+description = "Rust bindings and runtime loader for the BASS 2.4 audio library and BASS_FX"
+license = "MIT"
+
+[workspace]
+members = ["bass-cli"]
+resolver = "3"
+
+[dependencies]
+libloading = "0.8"
+thiserror = "2"
+windows-sys = { version = "0.59", features = ["Win32_Globalization"] }
+
+[lib]
+name = "bass_rs"
+path = "src/lib.rs"
