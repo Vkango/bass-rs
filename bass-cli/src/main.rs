@@ -5,7 +5,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use bass_rs::{
+use bass_library::{
     BassEngine, BassEngineOptions, BassError, EffectKind, InitOptions, OutputBackend,
     SourceOptions, UrlOptions, raw,
 };
@@ -17,7 +17,7 @@ fn main() {
     }
 }
 
-fn run() -> bass_rs::Result<()> {
+fn run() -> bass_library::Result<()> {
     let mut args = env::args().skip(1);
     let Some(command) = args.next() else {
         print_help();
@@ -58,7 +58,7 @@ fn run() -> bass_rs::Result<()> {
     Ok(())
 }
 
-fn load_engine(args: &[String]) -> bass_rs::Result<BassEngine> {
+fn load_engine(args: &[String]) -> bass_library::Result<BassEngine> {
     let fx_path = option_value(args, "--bass-fx").map(PathBuf::from);
     let options = BassEngineOptions {
         fx_path,
@@ -76,14 +76,14 @@ fn load_engine(args: &[String]) -> bass_rs::Result<BassEngine> {
     }
 }
 
-fn init(engine: &BassEngine, backend: OutputBackend) -> bass_rs::Result<()> {
+fn init(engine: &BassEngine, backend: OutputBackend) -> bass_library::Result<()> {
     engine.initialize(InitOptions {
         backend,
         ..InitOptions::default()
     })
 }
 
-fn plugins(paths: Vec<String>) -> bass_rs::Result<()> {
+fn plugins(paths: Vec<String>) -> bass_library::Result<()> {
     let engine = load_engine(&paths)?;
     let plugin_paths = positional_paths(&paths);
     if plugin_paths.is_empty() {
@@ -103,7 +103,7 @@ fn plugins(paths: Vec<String>) -> bass_rs::Result<()> {
     Ok(())
 }
 
-fn inspect(args: Vec<String>) -> bass_rs::Result<()> {
+fn inspect(args: Vec<String>) -> bass_library::Result<()> {
     let path = required_path(&args, "inspect requires a file path")?;
     let engine = load_engine(&args)?;
     init(&engine, OutputBackend::Wasapi)?;
@@ -118,9 +118,9 @@ fn inspect(args: Vec<String>) -> bass_rs::Result<()> {
         channel.length()?
     );
     for tag in [
-        bass_rs::TagKind::Id3v2,
-        bass_rs::TagKind::Ogg,
-        bass_rs::TagKind::Mp4,
+        bass_library::TagKind::Id3v2,
+        bass_library::TagKind::Ogg,
+        bass_library::TagKind::Mp4,
     ] {
         let values = channel.tags(tag);
         if !values.is_empty() {
@@ -130,7 +130,7 @@ fn inspect(args: Vec<String>) -> bass_rs::Result<()> {
     Ok(())
 }
 
-fn play(args: Vec<String>) -> bass_rs::Result<()> {
+fn play(args: Vec<String>) -> bass_library::Result<()> {
     let source = required_path(&args, "play requires a file path or URL")?;
     let backend = if args.iter().any(|arg| arg == "--backend=dsound") {
         OutputBackend::DirectSound
@@ -175,7 +175,7 @@ fn play(args: Vec<String>) -> bass_rs::Result<()> {
         {
             break;
         }
-        if !is_url && matches!(channel.active_state(), bass_rs::ActiveState::Stopped) {
+        if !is_url && matches!(channel.active_state(), bass_library::ActiveState::Stopped) {
             break;
         }
         thread::sleep(Duration::from_millis(100));
@@ -184,7 +184,7 @@ fn play(args: Vec<String>) -> bass_rs::Result<()> {
     Ok(())
 }
 
-fn effects(args: Vec<String>) -> bass_rs::Result<()> {
+fn effects(args: Vec<String>) -> bass_library::Result<()> {
     let path = required_path(&args, "effects requires a file path")?;
     let engine = load_engine(&args)?;
     init(&engine, OutputBackend::Wasapi)?;
@@ -202,7 +202,7 @@ fn effects(args: Vec<String>) -> bass_rs::Result<()> {
     );
     if engine.has_fx() {
         let freeverb =
-            channel.add_effect(EffectKind::BassFx(bass_rs::BassFxEffect::Freeverb), 0)?;
+            channel.add_effect(EffectKind::BassFx(bass_library::BassFxEffect::Freeverb), 0)?;
         let parameters = raw::BASS_BFX_FREEVERB {
             fDryMix: 0.0,
             fWetMix: 1.0,
@@ -223,7 +223,7 @@ fn effects(args: Vec<String>) -> bass_rs::Result<()> {
     Ok(())
 }
 
-fn midi(args: Vec<String>) -> bass_rs::Result<()> {
+fn midi(args: Vec<String>) -> bass_library::Result<()> {
     let path = required_path(&args, "midi requires a file path")?;
     let _engine = load_engine(&args)?;
     let polyphony = option_value(&args, "--max-polyphony")
@@ -234,23 +234,23 @@ fn midi(args: Vec<String>) -> bass_rs::Result<()> {
             message: "expected an integer".into(),
         })?;
     let addon = if let Some(dll) = option_value(&args, "--bassmidi") {
-        bass_rs::midi::MidiAddon::load(dll)?
+        bass_library::midi::MidiAddon::load(dll)?
     } else if let Some(directory) = option_value(&args, "--dll-dir") {
-        bass_rs::midi::MidiAddon::load_from_directory(directory)?
+        bass_library::midi::MidiAddon::load_from_directory(directory)?
     } else {
         return Err(BassError::InvalidInput {
             kind: "argument",
             message: "BASSMIDI path is required; use --bassmidi PATH or --dll-dir PATH".into(),
         });
     };
-    addon.set_max_polyphony(bass_rs::midi::MidiOptions {
+    addon.set_max_polyphony(bass_library::midi::MidiOptions {
         max_polyphony: Some(polyphony),
     })?;
     println!("MIDI source: {path}");
     Ok(())
 }
 
-fn required_path(args: &[String], message: &'static str) -> bass_rs::Result<String> {
+fn required_path(args: &[String], message: &'static str) -> bass_library::Result<String> {
     positional_paths(args)
         .first()
         .cloned()

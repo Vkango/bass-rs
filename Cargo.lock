@@ -6,11 +6,11 @@ version = 4
 name = "bass-cli"
 version = "0.1.0"
 dependencies = [
- "bass-rs",
+ "bass-library",
 ]
 
 [[package]]
-name = "bass-rs"
+name = "bass-library"
 version = "0.1.0"
 dependencies = [
  "libloading",

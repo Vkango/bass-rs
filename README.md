@@ -1,13 +1,13 @@
-# bass-rs
+# bass-library
 
-`bass-rs` 是 [BASS](https://www.un4seen.com) 音频库的 Rust 封装 crate. 还在更新中.
+`bass-library` 是 [BASS](https://www.un4seen.com) 音频库的 Rust 封装 crate. 还在更新中.
 
 ## 加载 BASS
 
 可以指定完整路径:
 
 ```rust
-use bass_rs::BassEngine;
+use bass_library::BassEngine;
 
 let engine = BassEngine::load(r"E:\libs\bass24\x64\bass.dll")?;
 ```
@@ -15,7 +15,7 @@ let engine = BassEngine::load(r"E:\libs\bass24\x64\bass.dll")?;
 也可以通过目录自动枚举:
 
 ```rust
-use bass_rs::BassEngine;
+use bass_library::BassEngine;
 
 let engine = BassEngine::load_from_directory(r"E:\libs\bass24\x64")?;
 ```
@@ -23,7 +23,7 @@ let engine = BassEngine::load_from_directory(r"E:\libs\bass24\x64")?;
 单独指定 BASS_FX 路径:
 
 ```rust
-use bass_rs::{BassEngine, BassEngineOptions};
+use bass_library::{BassEngine, BassEngineOptions};
 
 let engine = BassEngine::load_with_options(
     r"E:\libs\bass24\x64\bass.dll",
