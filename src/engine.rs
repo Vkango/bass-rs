@@ -892,6 +892,35 @@ impl Channel {
         }
         Ok(result)
     }
+    pub fn read_fft_data(&self, fft_size: usize, flags: DWORD) -> Result<Vec<f32>> {
+        let fft_flag = match fft_size {
+            256 => raw::BASS_DATA_FFT256,
+            512 => raw::BASS_DATA_FFT512,
+            1024 => raw::BASS_DATA_FFT1024,
+            2048 => raw::BASS_DATA_FFT2048,
+            4096 => raw::BASS_DATA_FFT4096,
+            8192 => raw::BASS_DATA_FFT8192,
+            _ => {
+                return Err(BassError::InvalidInput {
+                    kind: "FFT size",
+                    message: "expected one of 256, 512, 1024, 2048, 4096, or 8192".into(),
+                });
+            }
+        };
+        let mut data = vec![0.0f32; fft_size / 2 + 1];
+        let read = unsafe {
+            (self.inner.bass.channel_get_data)(
+                self.handle,
+                data.as_mut_ptr().cast(),
+                fft_flag | flags,
+            )
+        };
+        if read == DWORD::MAX {
+            return Err(api_error("BASS_ChannelGetData", self.last_error()));
+        }
+        data.truncate((read as usize / std::mem::size_of::<f32>()).min(data.len()));
+        Ok(data)
+    }
     pub fn tags(&self, tag: TagKind) -> Vec<String> {
         let ptr = unsafe { (self.inner.bass.channel_get_tags)(self.handle, tag.raw()) };
         parse_tag_strings(ptr)

@@ -18,7 +18,8 @@ pub mod raw;
 pub use engine::{
     ActiveState, BassEngine, BassEngineOptions, Channel, ChannelInfo, ChannelKind, DeviceInfo,
     DeviceType, DownloadCallback, DownloadEvent, InitOptions, OutputBackend, OutputInfo, Plugin,
-    PluginFormat, PluginInfo, RemoteProgress, SourceOptions, SyncEvent, SyncKind, TagKind,
+    PluginFormat, PluginInfo, RemoteProgress, SourceOptions, SyncCallback, SyncEvent,
+    SyncKind, SyncRegistration, TagKind,
     UrlOptions,
 };
 pub use error::{BassError, Result};
